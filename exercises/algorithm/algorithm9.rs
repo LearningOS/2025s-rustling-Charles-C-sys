@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,24 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count += 1;
+        if self.count >= self.items.len() {
+            self.items.push(value);
+        } else {
+            self.items[self.count] = value;
+        }
+
+        // Bubble up the newly added element
+        let mut current_idx = self.count;
+        while current_idx > 1 {
+            let parent_idx = self.parent_idx(current_idx);
+            if (self.comparator)(&self.items[current_idx], &self.items[parent_idx]) {
+                self.items.swap(current_idx, parent_idx);
+                current_idx = parent_idx;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +73,23 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        if right <= self.count {
+            // Both children exist
+            if (self.comparator)(&self.items[left], &self.items[right]) {
+                left
+            } else {
+                right
+            }
+        } else if left <= self.count {
+            // Only left child exists
+            left
+        } else {
+            // No children exist
+            idx
+        }
     }
 }
 
@@ -84,8 +115,35 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        // Save the root value to return
+        let result = std::mem::replace(&mut self.items[1], T::default());
+
+        // Move the last element to the root
+        if self.count > 1 {
+            self.items[1] = std::mem::replace(&mut self.items[self.count], T::default());
+        }
+
+        self.count -= 1;
+
+        // Heapify down
+        let mut current_idx = 1;
+        while self.children_present(current_idx) {
+            let smallest_child = self.smallest_child_idx(current_idx);
+            if smallest_child <= self.count
+                && (self.comparator)(&self.items[smallest_child], &self.items[current_idx])
+            {
+                self.items.swap(current_idx, smallest_child);
+                current_idx = smallest_child;
+            } else {
+                break;
+            }
+        }
+
+        Some(result)
     }
 }
 

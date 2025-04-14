@@ -3,11 +3,27 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T: Ord>(array: &mut [T]) {
+    let len = array.len();
+    
+    // Early return for arrays of length 0 or 1
+    if len <= 1 {
+        return;
+    }
+
+    // Bubble sort implementation
+    for i in 0..len {
+        // Last i elements are already sorted
+        for j in 0..(len - 1 - i) {
+            if array[j] > array[j + 1] {
+                // Swap elements if they are in wrong order
+                array.swap(j, j + 1);
+            }
+        }
+    }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

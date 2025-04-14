@@ -1,8 +1,7 @@
 /*
-	graph
-	This problem requires you to implement a basic graph functio
+    graph
+    This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -30,6 +29,24 @@ impl Graph for UndirectedGraph {
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (from_node, to_node, weight) = edge;
+        let from_node = from_node.to_string();
+        let to_node = to_node.to_string();
+        let weight = weight;
+        if !self.contains(&from_node) {
+            self.add_node(&from_node);
+        }
+        if !self.contains(&to_node) {
+            self.add_node(&to_node);
+        }
+        self.adjacency_table_mutable()
+            .entry(from_node.clone())
+            .or_insert_with(Vec::new)
+            .push((to_node.clone(), weight));
+        self.adjacency_table_mutable()
+            .entry(to_node.clone())
+            .or_insert_with(Vec::new)
+            .push((from_node.clone(), weight));
     }
 }
 pub trait Graph {
@@ -38,10 +55,41 @@ pub trait Graph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
         //TODO
-		true
+        if self.contains(node) {
+            return false; // Node already exists
+        }
+        self.adjacency_table_mutable()
+            .insert(String::from(node), Vec::new());
+        true
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (from_node, to_node, weight) = edge;
+
+        // Add nodes if they don't exist
+        if !self.contains(from_node) {
+            self.add_node(from_node);
+        }
+        if !self.contains(to_node) {
+            self.add_node(to_node);
+        }
+
+        // Add edges in both directions (undirected graph)
+        // Add edge from_node -> to_node
+        if let Some(edges) = self.adjacency_table_mutable().get_mut(from_node) {
+            // Check if edge already exists
+            if !edges.iter().any(|(node, _)| node == to_node) {
+                edges.push((String::from(to_node), weight));
+            }
+        }
+
+        // Add edge to_node -> from_node
+        if let Some(edges) = self.adjacency_table_mutable().get_mut(to_node) {
+            // Check if edge already exists
+            if !edges.iter().any(|(node, _)| node == from_node) {
+                edges.push((String::from(from_node), weight));
+            }
+        }
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
